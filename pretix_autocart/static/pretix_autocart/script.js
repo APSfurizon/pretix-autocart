@@ -39,14 +39,16 @@ $(document).ready(function(){
 		if(isDataInUrl){
 			setCookie("pretix_autocart_action", action, 1);
 			setCookie("pretix_autocart_signature", signature, 1);
+			eraseCookie("pretix_autocart_previous");
 		}
 
 		var previousKeys = getCookie("pretix_autocart_previous"); //Get previously filled questions/cart positions. We give the chance to the user to edit their cart
-		previousKeys = previousKeys === null ? [] : previousKeys.split("@"); //Dumb way of splitting
+		previousKeys = (previousKeys === null || isDataInUrl) ? [] : previousKeys.split("@"); //Dumb way of splitting
 
 		action = JSON.parse(atob(action));
 		actionIds = Object.keys(action);
 
+		//We DON'T need to check if a field "group" is "open", the input object will always be there
 		for(var i = 0; i < actionIds.length; i++){
 			var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/]+/gm, "");
 			if(!previousKeys.includes(id)){
