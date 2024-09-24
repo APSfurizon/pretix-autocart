@@ -65,3 +65,5 @@ target/
 venv*/
 
 .vscode/
+
+priv-key.rsa
