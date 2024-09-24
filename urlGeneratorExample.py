@@ -46,9 +46,9 @@ def generateUrl(shopUrl: str, listAction: list, keyPassword: str = None) -> str:
 
 
 l = []
-l.append(Action("item_1", 1, TYPE_VALUE))
-l.append(Action("cp_41_item_3", 1, TYPE_BOOL))
-l.append(Action("id_41-question_1", "non bossetti", TYPE_VALUE))
+l.append(Action("item_1", 2, TYPE_VALUE))
+l.append(Action("cp_$_item_3", 1, TYPE_BOOL)) #Use $ as a SINGLE (only one allowed per time!) wildcard for cart positions
+l.append(Action("id_$-question_1", "non bossetti", TYPE_VALUE))
 
 shopUrl = "http://localhost:8000/suka/testPayment/"
 

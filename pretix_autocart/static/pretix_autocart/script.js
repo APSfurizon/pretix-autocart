@@ -57,11 +57,16 @@ $(document).ready(function(){
 
 		//We DON'T need to check if a field "group" is "open", the input object will always be there
 		for(var i = 0; i < actionIds.length; i++){
-			var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/]+/gm, "");
+			var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/\$]+/gm, "");
 			if(!previousKeys.includes(id)){
 
-				var obj = document.getElementById(id);
-				if(obj !== null){
+				var sp = id.split("$"); //Use "$" as a SINGLE wildcard in ids
+				var elements = null;
+				if(sp.length > 1) {
+					elements = $('input[id^=' + sp[0] + '][id$=' + sp[1] + ']'); //Apply the same addons/questions to every cart position. There's no known way to differentiate between those
+				} else elements = $('input[id=' + id + ']');
+				for(var j = 0; j < elements.length; j++){
+					obj = elements[j];
 
 					var value = action[id];
 					var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
@@ -69,14 +74,14 @@ $(document).ready(function(){
 
 					if(type === 'v'){
 						obj.value = value;
-						obj.focus();
+						obj.focus(); //Just to be sure
 					} else {
 						value = value === '1';
 						if(obj.checked !== value) obj.click();
 					}
-
-					previousKeys.push(id);
 				}
+				
+				if(elements.length > 0) previousKeys.push(id);
 			}
 		}
 
