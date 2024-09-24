@@ -1,0 +1,5 @@
+[plugin]
+package = "pretix-autocart"
+modules = [ "pretix_autocart" ]
+marketplace_name = "autocart"
+
