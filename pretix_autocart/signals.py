@@ -1,7 +1,6 @@
 import logging
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from django.core.handlers.wsgi import WSGIRequest
 from collections import OrderedDict
 from django import forms
 
@@ -14,18 +13,16 @@ from pretix.presale.signals import (
 
 logger = logging.getLogger(__name__)
 
-@receiver(global_html_head, dispatch_uid="autocart_global_head")
-def globalHead(**kwargs):
-	req : WSGIRequest = kwargs["request"]
-	if "/checkout/" in req.get_full_path():
-		logger.info("Injecting js")
-		return '''
+SCRIPT_STRING = '''
 <script src="/static/pretix_autocart/crypto-js/crypto-js.min.js"></script>
 <script src="/static/pretix_autocart/jsencrypt/jsencrypt.min.js"></script>
 <script type="text/javascript" src="/static/pretix_autocart/script.js"></script>
 '''.strip()
-	else: 
-		return ""
+
+
+@receiver(global_html_head, dispatch_uid="autocart_global_head")
+def globalHead(**kwargs):
+	return SCRIPT_STRING
 
 @receiver(register_global_settings, dispatch_uid="autocart_global_setting")
 def globalSettings(**kwargs):
