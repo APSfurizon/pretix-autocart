@@ -13,6 +13,51 @@ function eraseCookie(key) {
 	setCookie(key, keyValue, '-1');
 }
 
+function autocomplete(action, actionIds, previousKeys){
+	//We DON'T need to check if a field "group" is "open", the input object will always be there
+	for(var i = 0; i < actionIds.length; i++){
+		var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/\$]+/gm, "");
+		if(!previousKeys.includes(id)){
+
+			var sp = id.split("$"); //Use "$" as a SINGLE wildcard in ids
+			var elements = null;
+			if(sp.length > 1) {
+				elements = $('input[id^=' + sp[0] + '][id$=' + sp[1] + ']'); //Apply the same addons/questions to every cart position. There's no known way to differentiate between those
+			} else elements = $('input[id=' + id + ']');
+			for(var j = 0; j < elements.length; j++){
+				obj = elements[j];
+
+				var value = action[id];
+				var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
+				value = value.substring(1);
+
+				switch(type){
+					case 'v': {
+						obj.value = value;
+						obj.focus(); //Just to be sure
+						break;
+					}
+					case 'd': {
+						obj.value = value;
+						obj.dispatchEvent(new Event('change'));
+						break;
+					}
+					case 'b': {
+						value = value === '1';
+						if(obj.checked !== value) obj.click();
+						break;
+					}
+				}
+			}
+			
+			if(elements.length > 0) previousKeys.push(id);
+		}
+	}
+
+	setCookie("pretix_autocart_previous", previousKeys.join("@"), 1);
+	setTimeout(function(){ autocomplete(action, actionIds, previousKeys); }, 1500);
+}
+
 $(document).ready(function(){
 	$.get("/autocart/pubkey", function(data, status){
 
@@ -47,46 +92,6 @@ $(document).ready(function(){
 		action = JSON.parse(atob(action));
 		actionIds = Object.keys(action);
 
-		//We DON'T need to check if a field "group" is "open", the input object will always be there
-		for(var i = 0; i < actionIds.length; i++){
-			var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/\$]+/gm, "");
-			if(!previousKeys.includes(id)){
-
-				var sp = id.split("$"); //Use "$" as a SINGLE wildcard in ids
-				var elements = null;
-				if(sp.length > 1) {
-					elements = $('input[id^=' + sp[0] + '][id$=' + sp[1] + ']'); //Apply the same addons/questions to every cart position. There's no known way to differentiate between those
-				} else elements = $('input[id=' + id + ']');
-				for(var j = 0; j < elements.length; j++){
-					obj = elements[j];
-
-					var value = action[id];
-					var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
-					value = value.substring(1);
-
-					switch(type){
-						case 'v': {
-							obj.value = value;
-							obj.focus(); //Just to be sure
-							break;
-						}
-						case 'd': {
-							obj.value = value;
-							obj.dispatchEvent(new Event('change'))
-							break;
-						}
-						case 'b': {
-							value = value === '1';
-							if(obj.checked !== value) obj.click();
-							break;
-						}
-					}
-				}
-				
-				if(elements.length > 0) previousKeys.push(id);
-			}
-		}
-
-		setCookie("pretix_autocart_previous", previousKeys.join("@"), 1);	
+		autocomplete(action, actionIds, previousKeys);
 	});
 });
