@@ -64,12 +64,22 @@ $(document).ready(function(){
 					var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
 					value = value.substring(1);
 
-					if(type === 'v'){
-						obj.value = value;
-						obj.focus(); //Just to be sure
-					} else {
-						value = value === '1';
-						if(obj.checked !== value) obj.click();
+					switch(type){
+						case 'v': {
+							obj.value = value;
+							obj.focus(); //Just to be sure
+							break;
+						}
+						case 'd': {
+							obj.value = value;
+							obj.dispatchEvent(new Event('change'))
+							break;
+						}
+						case 'b': {
+							value = value === '1';
+							if(obj.checked !== value) obj.click();
+							break;
+						}
 					}
 				}
 				
