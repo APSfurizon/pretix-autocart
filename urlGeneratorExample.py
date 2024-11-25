@@ -5,7 +5,9 @@ import base64
 import json
 
 TYPE_BOOL = 'b'
-TYPE_VALUE = 'v'
+TYPE_INPUT = 'i'
+TYPE_DROPDOWN = 'd'
+TYPE_TEXTAREA = 't'
 
 class Action:
     targetId : str = None
@@ -23,10 +25,10 @@ def generateUrl(shopUrl: str, listAction: list, keyPassword: str = None) -> str:
 
     action: Action
     for action in listAction:
-        if(action.type == TYPE_VALUE):
-            data[action.targetId] = action.type + str(action.value)
-        else: # Checkmarks:
+        if(action.type == TYPE_BOOL):
             data[action.targetId] = action.type + ("1" if action.value else "0") #checkmarks are encoded as 0 or 1
+        else: # Checkmarks:
+            data[action.targetId] = action.type + str(action.value)
 
     data = base64.urlsafe_b64encode(json.dumps(data).encode("utf-8")).replace(b"=", b"")
 
@@ -46,9 +48,13 @@ def generateUrl(shopUrl: str, listAction: list, keyPassword: str = None) -> str:
 
 
 l = []
-l.append(Action("item_1", 2, TYPE_VALUE))
+l.append(Action("item_1", 2, TYPE_INPUT))
 l.append(Action("cp_$_item_3", 1, TYPE_BOOL)) #Use $ as a SINGLE (only one allowed per time!) wildcard for cart positions
-l.append(Action("id_$-question_1", "non bossetti", TYPE_VALUE))
+l.append(Action("id_$-question_1", "non bossetti", TYPE_INPUT))
+l.append(Action("id_$-question_1", "non bossetti", TYPE_INPUT))
+l.append(Action("id_street", "aaaaaaaa", TYPE_TEXTAREA))
+l.append(Action("id_country", "US", TYPE_DROPDOWN))
+l.append(Action("id_state", "NV", TYPE_DROPDOWN))
 
 shopUrl = "http://localhost:8000/suka/testPayment/"
 

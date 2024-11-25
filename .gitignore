@@ -67,3 +67,5 @@ venv*/
 .vscode/
 
 priv-key.rsa
+data
+venv_wsl

@@ -13,44 +13,62 @@ function eraseCookie(key) {
 	setCookie(key, keyValue, '-1');
 }
 
+var inputTypeTranslator = {
+	"b": "input",
+	"i": "input",
+	"d": "select",
+	"t": "textarea"
+};
+
 function autocomplete(action, actionIds, previousKeys){
 	//We DON'T need to check if a field "group" is "open", the input object will always be there
 	for(var i = 0; i < actionIds.length; i++){
 		var id = actionIds[i].replaceAll(/[^a-zA-Z0-9\-\_\+\/\$]+/gm, "");
 		if(!previousKeys.includes(id)){
 
+			var value = action[id];
+			var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
+			value = value.substring(1);
+
+			htmlType = inputTypeTranslator[type];
+			if(htmlType === undefined) { console.log("Unknown type: " + type); continue; }
+
 			var sp = id.split("$"); //Use "$" as a SINGLE wildcard in ids
 			var elements = null;
 			if(sp.length > 1) {
-				elements = $('input[id^=' + sp[0] + '][id$=' + sp[1] + ']'); //Apply the same addons/questions to every cart position. There's no known way to differentiate between those
-			} else elements = $('input[id=' + id + ']');
+				elements = $(htmlType + '[id^=' + sp[0] + '][id$=' + sp[1] + ']'); //Apply the same addons/questions to every cart position. There's no known way to differentiate between those
+			} else elements = $(htmlType + '[id=' + id + ']');
+
+			var foundDisabledElement = false;
 			for(var j = 0; j < elements.length; j++){
 				obj = elements[j];
-
-				var value = action[id];
-				var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
-				value = value.substring(1);
+				if(obj.disabled) {
+					foundDisabledElement = true;
+					continue;
+				}
 
 				switch(type){
-					case 'v': {
+					case 'd':
+					case 't':
+					case 'i': {
 						obj.value = value;
+						obj.dispatchEvent(new Event('change'));
 						obj.focus(); //Just to be sure
 						break;
 					}
-					case 'd': {
-						obj.value = value;
-						obj.dispatchEvent(new Event('change'));
+					case 'b': {
+						var flag = value === '1';
+						if(obj.checked !== flag) obj.click();
 						break;
 					}
-					case 'b': {
-						value = value === '1';
-						if(obj.checked !== value) obj.click();
+					default: {
+						console.log("Unknown type: " + type);
 						break;
 					}
 				}
 			}
 			
-			if(elements.length > 0) previousKeys.push(id);
+			if(elements.length > 0 && !foundDisabledElement) previousKeys.push(id);
 		}
 	}
 
