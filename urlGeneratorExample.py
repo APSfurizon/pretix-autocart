@@ -6,6 +6,7 @@ from Crypto.Signature import pkcs1_15
 
 TYPE_BOOL = 'b'
 TYPE_INPUT = 'i'
+TYPE_RADIO = 'r'
 TYPE_DROPDOWN = 'd'
 TYPE_TEXTAREA = 't'
 
@@ -64,6 +65,7 @@ list.append(Action("id_$-question_1", "non bossetti", TYPE_INPUT))
 list.append(Action("id_street", "aaaaaaaa", TYPE_TEXTAREA))
 list.append(Action("id_country", "US", TYPE_DROPDOWN))
 list.append(Action("id_state", "NV", TYPE_DROPDOWN))
+list.append(Action("id_is_business_0", "", TYPE_RADIO))
 
 shopUrl = "http://localhost:8000/suka/testPayment/"
 

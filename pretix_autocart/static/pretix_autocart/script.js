@@ -14,10 +14,11 @@ function eraseCookie(key) {
 }
 
 var inputTypeTranslator = {
-	"b": "input",
-	"i": "input",
-	"d": "select",
-	"t": "textarea"
+	"b": "input", //Checkbox
+	"r": "input", //Radio
+	"i": "input", //Input
+	"d": "select", //Dropdown
+	"t": "textarea" //Text area
 };
 
 function autocomplete(action, actionIds, previousKeys){
@@ -27,7 +28,7 @@ function autocomplete(action, actionIds, previousKeys){
 		if(!previousKeys.includes(id)){
 
 			var value = action[id];
-			var type = value.charAt(0); //first char identifies the type. 'b' -> checkbox, 'v' -> string or integer
+			var type = value.charAt(0); //first char identifies the type
 			value = value.substring(1);
 
 			htmlType = inputTypeTranslator[type];
@@ -48,6 +49,12 @@ function autocomplete(action, actionIds, previousKeys){
 				}
 
 				switch(type){
+					case 'r': {
+						obj.checked = false;
+						obj.click();
+						setTimeout(function(o){ o.dispatchEvent(new Event('change')); }, 100, obj);
+						break;
+					}
 					case 'd':
 					case 't':
 					case 'i': {
