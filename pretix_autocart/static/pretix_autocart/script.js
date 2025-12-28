@@ -83,6 +83,19 @@ function autocomplete(action, actionIds, previousKeys){
 	setTimeout(function(){ autocomplete(action, actionIds, previousKeys); }, 1500);
 }
 
+function decodeBase64(base64) {
+	// https://stackoverflow.com/a/64752311
+	// Decoding b64 with utf8 symbols like ž (hi Pur3bolt! :D) was giving us wrong results. This properly decodes it
+	const text = atob(base64);
+	const length = text.length;
+	const bytes = new Uint8Array(length);
+	for (let i = 0; i < length; i++) {
+		bytes[i] = text.charCodeAt(i);
+	}
+	const decoder = new TextDecoder(); // default is utf-8
+	return decoder.decode(bytes);
+}
+
 $(document).ready(function(){
 	$.get("/autocart/pubkey", function(data, status){
 
@@ -114,7 +127,7 @@ $(document).ready(function(){
 		var previousKeys = getCookie("pretix_autocart_previous"); //Get previously filled questions/cart positions. We give the chance to the user to edit their cart
 		previousKeys = (previousKeys === null || previousKeys === "" || isDataInUrl) ? [] : previousKeys.split("@"); //Dumb way of splitting
 
-		action = JSON.parse(atob(action));
+		action = JSON.parse(decodeBase64(action.replaceAll("-", "+").replaceAll("_", "/")));
 		actionIds = Object.keys(action);
 
 		autocomplete(action, actionIds, previousKeys);
